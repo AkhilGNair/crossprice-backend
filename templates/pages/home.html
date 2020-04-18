@@ -5,12 +5,8 @@
 <div class="page-header">
   <h1>Sticky footer with fixed navbar</h1>
   <form class="navbar-form navbar-left" method="get">
-    <!-- <div class="form-group">
-      {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
-    </div> -->
     <div class="input-group">
-      <!-- <label for="search-courses" class="sr-only">Find a critter</label> -->
-      <input class="form-control search input-lg" placeholder="Find a critter" type="text">
+      <input type="text" placeholder="Find a critter" class="form-control search input-lg" id="search-input">
       <span class="input-group-btn">
         <button aria-label="Search Critters" id="button" class="btn search btn-default btn-lg" type="submit">
           <i class="fa fa-search"></i>
@@ -23,8 +19,53 @@
   CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the
   <code>.container</code>.</p>
 
-{% for critter in critters %}
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Animal</th>
+      <th scope="col">Price</th>
+    </tr>
+  </thead>
+  <tbody id="results"></tbody>
+</table>
+
+<!-- {% for critter in critters %}
 {{ critter }}
-{% endfor %}
+{% endfor %} -->
+
+<script>
+
+  window.data = JSON.parse('{{critters | tojson}}');
+
+  const input = document.querySelector('#search-input')
+  const results = document.querySelector('#results')
+
+  input.addEventListener('input', (e) => {
+    const value = e.target.value
+
+    if (!value) {
+      // clear list when no search value
+      results.innerHTML = ''
+      return
+    }
+
+    // create case-insensitive RegExp
+    const pattern = new RegExp(value, 'i')
+
+    // filter data array
+    const matches = window.data.filter(item => item.animal.match(pattern))
+
+    // update the <ul> contents
+    results.innerHTML = matches.map(createListItem).join('')
+  })
+
+  // template strings aren't supported by IE!
+  const createListItem = (item) => {
+    return `<tr>
+      <td>${item.animal}</td>
+      <td>${item.price}</td>
+    </tr>`
+  }
+</script>
 
 {% endblock %}
