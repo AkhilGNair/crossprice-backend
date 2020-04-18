@@ -15,9 +15,6 @@
     </div>
   </form>
 </div>
-<p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and
-  CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the
-  <code>.container</code>.</p>
 
 <table class="table table-sm">
   <thead>
@@ -53,7 +50,7 @@
     const pattern = new RegExp(value, 'i')
 
     // filter data array
-    const matches = window.data.filter(item => item.animal.match(pattern))
+    const matches = window.data.filter(item => item.Name.match(pattern))
 
     // update the <ul> contents
     results.innerHTML = matches.map(createListItem).join('')
@@ -62,8 +59,8 @@
   // template strings aren't supported by IE!
   const createListItem = (item) => {
     return `<tr>
-      <td>${item.animal}</td>
-      <td>${item.price}</td>
+      <td>${item.Name}</td>
+      <td>${item.Price}</td>
     </tr>`
   }
 </script>
