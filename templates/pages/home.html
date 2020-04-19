@@ -1,5 +1,5 @@
 {% extends 'layouts/main.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Prices{% endblock %}
 {% block content %}
 
 <div class="page-header">
@@ -27,11 +27,8 @@
   <tbody id="results"></tbody>
 </table>
 
-<!-- {% for critter in critters %}
-{{ critter }}
-{% endfor %} -->
-
 <script>
+  // Quick client side filtering
   // Thanks joaquimds (https://github.com/joaquimds)
   window.data = JSON.parse('{{ critters | escapejs }}');
 

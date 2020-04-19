@@ -2,20 +2,30 @@
 # Imports
 # ----------------------------------------------------------------------------#
 
-from flask import Flask, render_template
-import jinja2
-
+import json
 import logging
-from logging import Formatter, FileHandler
+from logging import FileHandler, Formatter
+from pathlib import Path
 
-from critters import critters
+import jinja2
+from flask import Flask, render_template
+
+# ----------------------------------------------------------------------------#
+# Critters
+# ----------------------------------------------------------------------------#
+
+_PROPERTIES = ("Name", "Price", "Image")
+
+critters = json.loads(Path("data/acnh_fish_n.json").read_text())
+critters = json.dumps(
+    [{k: v for k, v in critter.items() if k in _PROPERTIES} for critter in critters]
+)
 
 # ----------------------------------------------------------------------------#
 # App Config.
 # ----------------------------------------------------------------------------#
 
 app = Flask(__name__)
-app.config.from_object("config")
 
 _js_escapes = {
     "\\": "\\u005C",

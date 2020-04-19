@@ -5,8 +5,8 @@
   <title>{% block title %}{% endblock %}</title>
 
   <!-- meta -->
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="description" content="Animal Crossing: New Horizons critter pricelist">
+  <meta name="author" content="Akhil Nair">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <!-- /meta -->
 
@@ -58,17 +58,6 @@
     <!-- Begin page content -->
     <main id="content" role="main" class="container">
 
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-block alert-error fade in">
-        <a class="close" data-dismiss="alert">&times;</a>
-        {{ message }}
-      </div>
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
-
       {% block content %}{% endblock %}
 
     </main>
@@ -77,7 +66,7 @@
 
   <div id="footer">
     <div class="container">
-      <p>Your Company &copy; All Rights Reserved.</p>
+      <p>Akhil Nair &copy; All Rights Reserved.</p>
       {% block footer %}{% endblock %}
     </div>
   </div>
