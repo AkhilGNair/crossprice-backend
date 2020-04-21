@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------------#
 
 import json
+from typing import List
 import logging
 from logging import FileHandler, Formatter
 from pathlib import Path
@@ -16,9 +17,19 @@ from flask import Flask, render_template
 
 _PROPERTIES = ("Name", "Price", "Image")
 
-critters = json.loads(Path("data/acnh_fish_n.json").read_text())
-critters = json.dumps(
-    [{k: v for k, v in critter.items() if k in _PROPERTIES} for critter in critters]
+# Read all critters in preserving region and critter type
+_critters = {
+    name.stem: json.loads(Path(name).read_text())
+    for name in Path("data/json").iterdir()
+}
+
+# TODO: Add region and critter type
+critters: List[dict] = [critter for _, l in _critters.items() for critter in l]
+critters: str = json.dumps(
+    [
+        {k: v for k, v in critter.items() if k in _PROPERTIES}
+        for critter in critters
+    ]
 )
 
 # ----------------------------------------------------------------------------#
@@ -37,8 +48,8 @@ _js_escapes = {
     "=": "\\u003D",
     "-": "\\u002D",
     ";": "\\u003B",
-    u"\u2028": "\\u2028",
-    u"\u2029": "\\u2029",
+    "\u2028": "\\u2028",
+    "\u2029": "\\u2029",
 }
 # Escape every ASCII character with a value less than 32.
 _js_escapes.update(("%c" % z, "\\u%04X" % z) for z in range(32))
@@ -46,7 +57,8 @@ _js_escapes.update(("%c" % z, "\\u%04X" % z) for z in range(32))
 
 def jinja2_escapejs_filter(value):
     escaped = "".join(
-        _js_escapes[letter] if letter in _js_escapes else letter for letter in value
+        _js_escapes[letter] if letter in _js_escapes else letter
+        for letter in value
     )
     return jinja2.Markup(escaped)
 
@@ -79,7 +91,9 @@ def not_found_error(error):
 if not app.debug:
     file_handler = FileHandler("error.log")
     file_handler.setFormatter(
-        Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")
+        Formatter(
+            "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+        )
     )
     app.logger.setLevel(logging.INFO)
     file_handler.setLevel(logging.INFO)
