@@ -1,5 +1,9 @@
--r requirements.txt
+-r common.txt
 
+black
+isort
+pylint
+
+# To source the data
 requests
-requests-html
-pandas
+bs4
