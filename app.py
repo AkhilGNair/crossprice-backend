@@ -7,27 +7,29 @@ from typing import List
 import logging
 from logging import FileHandler, Formatter
 from pathlib import Path
+from werkzeug.routing import BaseConverter
 
 import jinja2
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 # ----------------------------------------------------------------------------#
 # Critters
 # ----------------------------------------------------------------------------#
 
-_PROPERTIES = ("Name", "Price", "Image")
+DEFAULT_FIELDS = ["Name", "Price", "Image"]
 
 # Read all critters in preserving region and critter type
-_critters = {
+data = {
     name.stem: json.loads(Path(name).read_text())
     for name in Path("data/json").iterdir()
 }
 
 # TODO: Add region and critter type
-critters: List[dict] = [critter for _, l in _critters.items() for critter in l]
-critters: str = json.dumps(
+critters: List[dict] = [critter for _, l in data.items() for critter in l]
+
+clean_critters: str = json.dumps(
     [
-        {k: v for k, v in critter.items() if k in _PROPERTIES}
+        {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
         for critter in critters
     ]
 )
@@ -62,7 +64,6 @@ def jinja2_escapejs_filter(value):
     )
     return jinja2.Markup(escaped)
 
-
 app.jinja_env.filters["escapejs"] = jinja2_escapejs_filter
 
 # ----------------------------------------------------------------------------#
@@ -72,8 +73,17 @@ app.jinja_env.filters["escapejs"] = jinja2_escapejs_filter
 
 @app.route("/")
 def home():
-    return render_template("pages/home.html", critters=critters)
+    return render_template("pages/home.html", critters=clean_critters)
 
+
+@app.route("/api/v1/critters", methods=['GET'])
+def get_critters():
+    return jsonify(
+        [
+            {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
+            for critter in critters
+        ]
+    )
 
 # Error handlers.
 
