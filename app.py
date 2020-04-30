@@ -12,6 +12,11 @@ from werkzeug.routing import BaseConverter
 import jinja2
 from flask import Flask, render_template, jsonify
 
+_DEFAULT_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json"
+}
+
 # ----------------------------------------------------------------------------#
 # Critters
 # ----------------------------------------------------------------------------#
@@ -78,12 +83,14 @@ def home():
 
 @app.route("/api/v1/critters", methods=['GET'])
 def get_critters():
-    return jsonify(
+    response = jsonify(
         [
             {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
             for critter in critters
         ]
     )
+    response.headers.update(_DEFAULT_HEADERS)
+    return response
 
 # Error handlers.
 
