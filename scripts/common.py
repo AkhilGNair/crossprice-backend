@@ -28,5 +28,11 @@ PATH_DATA = PATH_ROOT / "data"
 urls = json.loads((PATH_DATA / "urls.json").read_text())
 
 # TODO: Pick all relevant object sets
-CRITTERS = ("acnh_fish_n", "acnh_bugs_n")
+CRITTERS = (
+    "acnh_fish_n",
+    "acnh_fish_s",
+    "acnh_bugs_n",
+    "acnh_bugs_s",
+)
+
 urls = {k: v for k, v in urls.items() if k in CRITTERS}
