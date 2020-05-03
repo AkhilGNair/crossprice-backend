@@ -14,7 +14,7 @@ from flask import Flask, render_template, jsonify
 
 _DEFAULT_HEADERS = {
     "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
 }
 
 # ----------------------------------------------------------------------------#
@@ -29,12 +29,21 @@ data = {
     for name in Path("data/json").iterdir()
 }
 
-# TODO: Add region and critter type
-critters: List[dict] = [critter for _, l in data.items() for critter in l]
 
+def index_critters(data: dict) -> dict:
+    return {
+        tuple(filename.split("_")): critters
+        for filename, critters in data.items()
+    }
+
+
+critters = index_critters(data)
+
+# WARN: Deprecated - used for flask app
 clean_critters: str = json.dumps(
     [
         {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
+        for _, critters in data.items()
         for critter in critters
     ]
 )
@@ -69,6 +78,7 @@ def jinja2_escapejs_filter(value):
     )
     return jinja2.Markup(escaped)
 
+
 app.jinja_env.filters["escapejs"] = jinja2_escapejs_filter
 
 # ----------------------------------------------------------------------------#
@@ -81,16 +91,27 @@ def home():
     return render_template("pages/home.html", critters=clean_critters)
 
 
-@app.route("/api/v1/critters", methods=['GET'])
+@app.route("/api/v1/critters", methods=["GET"])
 def get_critters():
-    response = jsonify(
-        [
-            {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
-            for critter in critters
-        ]
-    )
+    return get_regional_critters("n")
+
+
+@app.route("/api/v2/critters/region/<string:region>", methods=["GET"])
+def get_regional_critters(region: str):
+
+    # Filter files for correct region
+    regional = {k: v for k, v in critters.items() if region in k}
+
+    response_data = [
+        {k: v for k, v in critter.items() if k in DEFAULT_FIELDS}
+        for _, critterset in regional.items()
+        for critter in critterset
+    ]
+
+    response = jsonify(response_data)
     response.headers.update(_DEFAULT_HEADERS)
     return response
+
 
 # Error handlers.
 
