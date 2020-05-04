@@ -39,6 +39,12 @@ def index_critters(data: dict) -> dict:
 
 critters = index_critters(data)
 
+# Tidy tuesday data too!
+column_aliases = {"name": "Name", "sell_value": "Price", "image_url": "Image"}
+items = json.loads(Path("data/tidytuesday-items.json").read_text())
+item_groups = {item["grouping"] for item in items}
+
+
 # WARN: Deprecated - used for flask app
 clean_critters: str = json.dumps(
     [
@@ -107,6 +113,43 @@ def get_regional_critters(region: str):
         for _, critterset in regional.items()
         for critter in critterset
     ]
+
+    response = jsonify(response_data)
+    response.headers.update(_DEFAULT_HEADERS)
+    return response
+
+
+@app.route("/api/v2/items/groups", methods=["GET"])
+def get_item_groups():
+    """ Returns the high level categories for items."""
+    response = jsonify(list(item_groups))
+    response.headers.update(_DEFAULT_HEADERS)
+    return response
+
+
+@app.route("/api/v2/items/group/<string:group>", methods=["GET"])
+def get_items(group: str):
+    """ Returns all the items in a high level category."""
+
+    group = group.lower()
+
+    if group not in item_groups:
+        return jsonify({"message": f"{group} not a valid group"}), 400
+
+    items_in_group = (item for item in items if item["grouping"] == group)
+    items_in_group_slim = [
+        {
+            column_aliases[k]: v
+            for k, v in item.items()
+            if column_aliases.get(k, k) in DEFAULT_FIELDS
+        }
+        for item in items_in_group
+    ]
+
+    # Tidy tuesday list can be non-unique due to sources
+    response_data = list(
+        {item["Name"]: item for item in items_in_group_slim}.values()
+    )
 
     response = jsonify(response_data)
     response.headers.update(_DEFAULT_HEADERS)
